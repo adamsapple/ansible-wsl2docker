@@ -1,6 +1,16 @@
 # ansible-playbook for using Remote-Container without Docker Desktop
 
-features:
+Contents.
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [features](#features)
+- [sample usage](#sample-usage)
+
+<!-- /code_chunk_output -->
+
+## features
 
 - install genie and settings.
 - install docker, docker-compose.
