@@ -70,6 +70,10 @@
     #  ignore_errors: true
     #  command: e2label /dev/sdb cloudimg-rootfs
 
+    - name: edit docker.service.
+      shell: |
+        sed -i 's|^ExecStart=\(.*\)$|#ExecStart=\1\nExecStart=/usr/bin/dockerd -H unix:///var/run/docker.sock -H tcp://127.0.0.1:2735 --containerd=/run/containerd/containerd.sock|g' /etc/systemd/system/multi-user.target.wants/docker.service
+
     - name: download docker.gpg
       ansible.builtin.uri:
         url: https://download.docker.com/linux/ubuntu/gpg
