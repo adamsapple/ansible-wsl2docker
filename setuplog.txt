@@ -1,0 +1,125 @@
+
+
+$ sudo apt update
+$ sudo apt upgrade
+
+
+■donet runtime 5.0
+
+依存ファイルのインストール
+$ sudo apt install -y daemonize dbus gawk libc6 policykit-1 python3 python3-pip python3-psutil systemd systemd-container
+
+パッケージの最新版取得、更新
+$ sudo apt update
+
+$ apt install lsb-release
+
+superuserになる
+sudo su # 
+wget -O /etc/apt/trusted.gpg.d/wsl-transdebian.gpg https://arkane-systems.github.io/wsl-transdebian/apt/wsl-transdebian.gpg
+chmod a+r /etc/apt/trusted.gpg.d/wsl-transdebian.gpg
+cat << EOF > /etc/apt/sources.list.d/wsl-transdebian.list
+> deb https://arkane-systems.github.io/wsl-transdebian/apt/ $(lsb_release -cs) main
+> deb-src https://arkane-systems.github.io/wsl-transdebian/apt/ $(lsb_release -cs) main
+> EOF
+exit # userに戻る
+
+apt update # リポジトリ情報を更新
+
+■genie
+genieインストール
+$ sudo apt install -y systemd-genie
+
+
+設定
+$ sudo systemctl set-default multi-user.target
+$ sudo systemctl disable getty@tty1
+$ sudo systemctl disable multipathd.socket
+$ sudo e2label /dev/sdb cloudimg-rootfs
+
+
+
+
+
+
+# Are we in the bottle?
+if [[ ! -v INSIDE_GENIE ]]; then
+  read -t 3 -p "yn? * Preparing to enter genie bottle (in 3s); abort? " yn
+  echo
+
+  if [[ \$yn != "y" ]]; then
+    echo "Starting genie:"
+    exec /usr/bin/genie -s
+  fi
+fi
+
+
+
+■docker
+$ sudo apt install ca-certificates curl gnupg lsb-release
+
+$ sudo mkdir -p /etc/apt/keyrings
+
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+$ echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+$ sudo apt-get update
+$ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+$ sudo usermod -aG docker $USER
+su $USER
+
+sudo visudo
+
+（最終行に下記を追加）
+%docker ALL=(ALL)  NOPASSWD: /usr/sbin/service docker start
+
+
+# dockerのcontextをlocalhostに公開
+$ sudo systemctl stop docker
+$ sudo vi /etc/systemd/system/multi-user.target.wants/docker.service
+
+#ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+ExecStart=/usr/bin/dockerd -H unix:///var/run/docker.sock -H tcp://127.0.0.1:2735 --containerd=/run/containerd/containerd.sock
+
+$ sudo systemctl daemon-reload
+$ sudo systemctl start docker
+$ sudo systemctl status docker
+
+
+■docker(windows)
+
+https://github.com/StefanScherer/docker-cli-builder/releases/ からdocker.exeをダウンロード
+どこかに設置
+環境変数のPATHを通す
+
+
+Powershellにて
+> Test-NetConnection -ComputerName localhost -Port 2735
+> docker context create remote --docker 'host=tcp://127.0.0.1:2735'
+> docker context use remote
+> docker version
+
+
+
+■vscode(remote-container)
+devcontainer.jsonの編集
+	"remoteEnv": {
+		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+	},
+	"workspaceMount": "source=/mnt/e/Users/Jackhammer/Documents/Dev/python/xml2json,target=/workspace,type=bind",
+	"workspaceFolder": "/workspace",
+
+
+■docker-compose(wsl2)
+$ sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+$ sudo chmod +x /usr/local/bin/docker-compose
+$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+$ docker-compose --version
+
+
+■docker-compose(windows)
+https://github.com/docker/compose/releases
+ここから落としてくる
