@@ -1,6 +1,7 @@
 ---
 - hosts: all
   become: true
+  gather_facts: false
   tasks:
     - name: apt install dependency module.
       apt:
@@ -141,3 +142,19 @@
         name: "{{ remote_user.stdout }}"
         group: docker
         append: yes
+
+    - name: edit ~/.bashrc for run genie on login.
+      become: false
+      blockinfile:
+        path: ~/.bashrc
+        block: |
+          # Are we in the bottle?
+          if [[ ! -v INSIDE_GENIE ]]; then
+              read -t 3 -p "Preparing to enter genie bottle (in 3s); abort? (y/N) ..." yn
+              case "$yn" in
+                  [yY]*) echo "abort." ;  ;;
+                  *) echo "Starting genie."; exec /usr/bin/genie -s ;;
+              esac
+          else
+              echo "entering genie bottle."
+          fi
