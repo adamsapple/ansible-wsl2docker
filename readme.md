@@ -6,10 +6,10 @@ Contents.
 <!-- code_chunk_output -->
 
 - [features](#features)
-- [Windows Docker Setting](#windows-docker-setting)
-  - [1. Download these and append PATH.](#1-download-these-and-append-path)
-  - [2. boot wsl2.](#2-boot-wsl2)
-  - [3. use PowerShell](#3-use-powershell)
+- [work procedures](#work-procedures)
+  - [1. [windows] Download these and append PATH environment](#1-windows-download-these-and-append-path-environment)
+  - [2. [wsl] boot wsl2 and exec ansible playbook](#2-wsl-boot-wsl2-and-exec-ansible-playbook)
+  - [3. [windows] use PowerShell](#3-windows-use-powershell)
 - [command usage](#command-usage)
 
 <!-- /code_chunk_output -->
@@ -19,16 +19,18 @@ Contents.
 - install genie and settings.
 - install docker, docker-compose.
 
-## Windows Docker Setting
+## work procedures
 
-### 1. Download these and append PATH.
+### 1. [windows] Download these and append PATH environment
 
 - docker https://github.com/StefanScherer/docker-cli-builder/releases
 - docker-compose https://github.com/docker/compose/releases
 
-### 2. boot wsl2.
+### 2. [wsl] boot wsl2 and exec ansible playbook
 
-### 3. use PowerShell
+    ansible-playbook -i hosts playbook.yml --connection=local --ask-become-pass
+
+### 3. [windows] use PowerShell
 
 at Powershell
 
@@ -78,7 +80,6 @@ If successful, client and server versions are displayed.
     docker-init:
     Version:          0.19.0
     GitCommit:        de40ad0
-
 
 ## command usage
 
