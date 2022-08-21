@@ -6,7 +6,11 @@ Contents.
 <!-- code_chunk_output -->
 
 - [features](#features)
-- [sample usage](#sample-usage)
+- [Windows Docker Setting](#windows-docker-setting)
+  - [1. Download these and append PATH.](#1-download-these-and-append-path)
+  - [2. boot wsl2.](#2-boot-wsl2)
+  - [3. use PowerShell](#3-use-powershell)
+- [command usage](#command-usage)
 
 <!-- /code_chunk_output -->
 
@@ -15,7 +19,68 @@ Contents.
 - install genie and settings.
 - install docker, docker-compose.
 
-## sample usage
+## Windows Docker Setting
+
+### 1. Download these and append PATH.
+
+- docker https://github.com/StefanScherer/docker-cli-builder/releases
+- docker-compose https://github.com/docker/compose/releases
+
+### 2. boot wsl2.
+
+### 3. use PowerShell
+
+at Powershell
+
+    Test-NetConnection -ComputerName localhost -Port 2735
+
+If Test-Connection succeessful, create a docker context directed to wsl.
+
+    > docker context create remote --docker 'host=tcp://127.0.0.1:2735'
+    > docker context use remote
+
+remote is selected.
+
+    > docker context ls
+    NAME       DESCRIPTION                               DOCKER ENDPOINT                  KUBERNETES ENDPOINT   ORCHESTRATOR
+    default    Current DOCKER_HOST based configuration   npipe:////./pipe/docker_engine                         swarm
+    remote *                                             tcp://127.0.0.1:2735
+
+
+If successful, client and server versions are displayed.
+
+    > docker version
+    Client:
+    Version:           20.10.9
+    API version:       1.41
+    Go version:        go1.13.15
+    Git commit:        c2ea9bc90
+    Built:             10/13/2021 11:55:06
+    OS/Arch:           windows/amd64
+    Context:           remote
+    Experimental:      true
+
+    Server: Docker Engine - Community
+    Engine:
+    Version:          20.10.17
+    API version:      1.41 (minimum version 1.12)
+    Go version:       go1.17.11
+    Git commit:       a89b842
+    Built:            Mon Jun  6 23:01:03 2022
+    OS/Arch:          linux/amd64
+    Experimental:     false
+    containerd:
+    Version:          1.6.7
+    GitCommit:        0197261a30bf81f1ee8e6a4dd2dea0ef95d67ccb
+    runc:
+    Version:          1.1.3
+    GitCommit:        v1.1.3-0-g6724737
+    docker-init:
+    Version:          0.19.0
+    GitCommit:        de40ad0
+
+
+## command usage
 
 simple.
 
