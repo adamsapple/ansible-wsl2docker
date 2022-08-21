@@ -37,7 +37,13 @@ $ sudo systemctl disable getty@tty1
 $ sudo systemctl disable multipathd.socket
 $ sudo e2label /dev/sdb cloudimg-rootfs
 
+ mount | grep '\s/\s'
+ mount | grep '\(.*\) on\s/\s'
+ mount | grep '\s/\s' | grep  -o '^[0-9a-z/]\+'
 
+
+wsl上のsystemdで問題の出るserviceとその対応方法など。
+https://github.com/arkane-systems/genie/wiki/Systemd-units-known-to-be-problematic-under-WSL
 
 
 
