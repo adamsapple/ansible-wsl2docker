@@ -67,6 +67,12 @@
     - name: systemctl disable multipathd.socket
       command: systemctl disable multipathd.socket
 
+    - name: systemctl enable docker
+      command: systemctl enable docker
+
+    - name: systemctl start docker
+      command: systemctl start docker
+
     #- name: e2label /dev/sdb cloudimg-rootfs
     #  ignore_errors: true
     #  command: e2label /dev/sdb cloudimg-rootfs
