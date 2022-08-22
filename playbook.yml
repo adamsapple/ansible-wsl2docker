@@ -54,10 +54,35 @@
         echo "# sshdエラー回避の設定"
         ssh-keygen -A
 
+    - name: search drive for cloudimg-rootfs(1).
+      changed_when: False
+      shell: 
+        cmd: mount
+        warn: false
+      register: mount_result
+
+    - name: search drive for cloudimg-rootfs(2).
+      changed_when: False
+      shell: 
+        cmd: grep '\s/\s'
+        stdin: "{{ mount_result.stdout }}"
+      register: mount_grep_result
+
+    - name: search drive for cloudimg-rootfs(3).
+      changed_when: False
+      shell: 
+        cmd: grep  -o '^[0-9a-z/]\+'
+        stdin: "{{ mount_grep_result.stdout }}"
+      register: cloudimg_rootfs_drive
+
+    - name: e2label /dev/sdb cloudimg-rootfs
+      # command: mount | grep '\s/\s' | grep  -o '^[0-9a-z/]\+'
+      # command: e2label /dev/sdb cloudimg-rootfs
+      command: e2label {{ cloudimg_rootfs_drive.stdout }} cloudimg-rootfs
+
     - name: exec genie.
       ignore_errors: true
-      shell: genie -s
-    
+      shell: genie -s    
     - name: systemctl set-default
       command: systemctl set-default multi-user.target
 
@@ -72,10 +97,6 @@
 
     - name: systemctl start docker
       command: systemctl start docker
-
-    #- name: e2label /dev/sdb cloudimg-rootfs
-    #  ignore_errors: true
-    #  command: e2label /dev/sdb cloudimg-rootfs
 
     - name: edit docker.service.
       shell: |
