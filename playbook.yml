@@ -54,31 +54,33 @@
         echo "# sshdエラー回避の設定"
         ssh-keygen -A
 
-    - name: search drive for cloudimg-rootfs(1).
-      changed_when: False
-      shell: 
-        cmd: mount
-        warn: false
-      register: mount_result
-
-    - name: search drive for cloudimg-rootfs(2).
-      changed_when: False
-      shell: 
-        cmd: grep '\s/\s'
-        stdin: "{{ mount_result.stdout }}"
-      register: mount_grep_result
-
-    - name: search drive for cloudimg-rootfs(3).
-      changed_when: False
-      shell: 
-        cmd: grep  -o '^[0-9a-z/]\+'
-        stdin: "{{ mount_grep_result.stdout }}"
-      register: cloudimg_rootfs_drive
-
-    - name: e2label /dev/sdb cloudimg-rootfs
+    - name: e2label /dev/sdb cloudimg-rootfs.
       # command: mount | grep '\s/\s' | grep  -o '^[0-9a-z/]\+'
       # command: e2label /dev/sdb cloudimg-rootfs
-      command: e2label {{ cloudimg_rootfs_drive.stdout }} cloudimg-rootfs
+      block:
+      - name: search drive for cloudimg-rootfs(1).
+        changed_when: False
+        shell: 
+          cmd: mount
+          warn: false
+        register: mount_result
+
+      - name: search drive for cloudimg-rootfs(2).
+        changed_when: False
+        shell: 
+          cmd: grep '\s/\s'
+          stdin: "{{ mount_result.stdout }}"
+        register: mount_grep_result
+
+      - name: search drive for cloudimg-rootfs(3).
+        changed_when: False
+        shell: 
+          cmd: grep  -o '^[0-9a-z/]\+'
+          stdin: "{{ mount_grep_result.stdout }}"
+        register: cloudimg_rootfs_drive
+
+      - name: exec e2label
+        command: e2label {{ cloudimg_rootfs_drive.stdout }} cloudimg-rootfs
 
     - name: exec genie.
       ignore_errors: true
@@ -93,6 +95,7 @@
       command: systemctl disable multipathd.socket
 
     - name: systemctl enable docker
+      ignore_errors: true
       command: systemctl enable docker
 
     - name: systemctl start docker
@@ -102,61 +105,67 @@
       shell: |
         sed -i 's|^ExecStart=\(.*\)$|#ExecStart=\1\nExecStart=/usr/bin/dockerd -H unix:///var/run/docker.sock -H tcp://127.0.0.1:2735 --containerd=/run/containerd/containerd.sock|g' /etc/systemd/system/multi-user.target.wants/docker.service
 
-    - name: download docker.gpg
-      ansible.builtin.uri:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        return_content: yes
-      register: docker_gpg_txt
+    - name: install docker.
+      block:
+      - name: make /etc/apt/sources.list.d/docker.list.
+        block:  
+        - name: download docker.gpg
+          ansible.builtin.uri:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            return_content: yes
+          register: docker_gpg_txt
 
-    - name: docker gpg dearmoring.
-      ignore_errors: true
-      ansible.builtin.shell:
-        argv: 
-          - gpg
-          - --dearmor
-          - --yes
-          - -o
-          - /etc/apt/trusted.gpg.d/docker.gpg
-        stdin: "{{ docker_gpg_txt.content }}"
+        - name: docker gpg dearmoring.
+          ignore_errors: true
+          ansible.builtin.shell:
+            argv: 
+              - gpg
+              - --dearmor
+              - --yes
+              - -o
+              - /etc/apt/trusted.gpg.d/docker.gpg
+            stdin: "{{ docker_gpg_txt.content }}"
 
-    - name: make docker.list
-      shell:
-        cmd: |
-          cat << EOF > /etc/apt/sources.list.d/docker.list
-          deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable
-          EOF
+        - name: make docker.list
+          shell:
+            cmd: |
+              cat << EOF > /etc/apt/sources.list.d/docker.list
+              deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable
+              EOF
 
-    - name: apt install docker.
-      apt:
-        update_cache: yes
-        name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-          - docker-compose-plugin
+      - name: apt install docker.
+        apt:
+          update_cache: yes
+          name:
+            - docker-ce
+            - docker-ce-cli
+            - containerd.io
+            - docker-compose-plugin
 
-    - name: get uname -s
-      shell: uname -s
-      register: uname_s
-      changed_when: False
+    - name: install docker-compose.
+      block:
+      - name: get uname -s
+        shell: uname -s
+        register: uname_s
+        changed_when: False
 
-    - name: get uname -m
-      shell: uname -m
-      register: uname_m
-      changed_when: False
+      - name: get uname -m
+        shell: uname -m
+        register: uname_m
+        changed_when: False
 
-    - name: download docker-compose
-      get_url:
-        url: "https://github.com/docker/compose/releases/download/v2.10.0/docker-compose-{{uname_s.stdout}}-{{uname_m.stdout}}"
-        dest: /usr/local/bin/docker-compose
-        mode: 0754
-        force: true
+      - name: download docker-compose
+        get_url:
+          url: "https://github.com/docker/compose/releases/download/v2.10.0/docker-compose-{{uname_s.stdout}}-{{uname_m.stdout}}"
+          dest: /usr/local/bin/docker-compose
+          mode: 0754
+          force: true
 
-    - name: Create a docker-compose symbolic link
-      ansible.builtin.file:
-        src: /usr/local/bin/docker-compose
-        dest: /usr/bin/docker-compose
-        state: link
+      - name: Create a docker-compose symbolic link
+        ansible.builtin.file:
+          src: /usr/local/bin/docker-compose
+          dest: /usr/bin/docker-compose
+          state: link
 
     - name: get user.
       become: false
