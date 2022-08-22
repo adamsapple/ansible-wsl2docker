@@ -19,8 +19,10 @@ Contents.
 - install genie and settings.
 - install docker, docker-compose.
 
-
 playbook: list-tasks:
+
+    $ ansible-playbook -i hosts playbook.yml --list-tasks
+    playbook: list-tasks
 
     play #1 (all): all    TAGS: []
     tasks:
@@ -52,32 +54,6 @@ playbook: list-tasks:
         get user. TAGS: []
         Add remote user to docker group.  TAGS: []
         edit ~/.bashrc for run genie on login.    TAGS: []
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ## work procedures
 
