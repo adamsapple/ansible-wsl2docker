@@ -19,6 +19,66 @@ Contents.
 - install genie and settings.
 - install docker, docker-compose.
 
+
+playbook: list-tasks:
+
+    play #1 (all): all    TAGS: []
+    tasks:
+        apt install dependency module.    TAGS: []
+        mkdir /etc/apt/trusted.gpg.d      TAGS: []
+        download wsl-transdebian.gpg      TAGS: []
+        make wsl-transdebian.list TAGS: []
+        apt install dotnet5.0 runtine.    TAGS: []
+        edit genie.ini.   TAGS: []
+        search drive for cloudimg-rootfs(1).      TAGS: []
+        search drive for cloudimg-rootfs(2).      TAGS: []
+        search drive for cloudimg-rootfs(3).      TAGS: []
+        exec e2label      TAGS: []
+        exec genie.       TAGS: []
+        systemctl set-default     TAGS: []
+        systemctl disable getty@tty1      TAGS: []
+        systemctl disable multipathd.socket       TAGS: []
+        systemctl enable docker   TAGS: []
+        systemctl start docker    TAGS: []
+        edit docker.service.      TAGS: []
+        download docker.gpg       TAGS: []
+        docker gpg dearmoring.    TAGS: []
+        make docker.list  TAGS: []
+        apt install docker.       TAGS: []
+        get uname -s      TAGS: []
+        get uname -m      TAGS: []
+        download docker-compose   TAGS: []
+        Create a docker-compose symbolic link     TAGS: []
+        get user. TAGS: []
+        Add remote user to docker group.  TAGS: []
+        edit ~/.bashrc for run genie on login.    TAGS: []
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## work procedures
 
 ### 1. [windows] Download these and append PATH environment
