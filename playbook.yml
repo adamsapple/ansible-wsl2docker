@@ -94,17 +94,6 @@
     - name: systemctl disable multipathd.socket
       command: systemctl disable multipathd.socket
 
-    - name: systemctl enable docker
-      ignore_errors: true
-      command: systemctl enable docker
-
-    - name: systemctl start docker
-      command: systemctl start docker
-
-    - name: edit docker.service.
-      shell: |
-        sed -i 's|^ExecStart=\(.*\)$|#ExecStart=\1\nExecStart=/usr/bin/dockerd -H unix:///var/run/docker.sock -H tcp://127.0.0.1:2735 --containerd=/run/containerd/containerd.sock|g' /etc/systemd/system/multi-user.target.wants/docker.service
-
     - name: install docker.
       block:
       - name: make /etc/apt/sources.list.d/docker.list.
@@ -141,6 +130,17 @@
             - docker-ce-cli
             - containerd.io
             - docker-compose-plugin
+
+    - name: edit docker.service.
+      shell: |
+        sed -i 's|^ExecStart=\(.*\)$|#ExecStart=\1\nExecStart=/usr/bin/dockerd -H unix:///var/run/docker.sock -H tcp://127.0.0.1:2735 --containerd=/run/containerd/containerd.sock|g' /etc/systemd/system/multi-user.target.wants/docker.service
+
+    - name: systemctl enable docker
+      ignore_errors: true
+      command: systemctl enable docker
+
+    - name: systemctl start docker
+      command: systemctl start docker
 
     - name: install docker-compose.
       block:
